@@ -26,6 +26,12 @@ class munin::params {
   $graph_strategy = 'cron'
   $graph_period = 'second'
 
+  if $::fqdn {
+    $fqdn = $::fqdn
+  } else {
+    $fqdn = $::hostname
+  }
+
   $package_perlcidr = $::operatingsystem ? {
     /(?i:Centos|Redhat|Scientific|Amazon|Linux)/ => $::operatingsystemrelease ? {
       4        => 'perl-Net-CIDR-Lite',
@@ -176,9 +182,6 @@ class munin::params {
   $monitor_tool = ''
   $monitor_target = $::ipaddress
   $firewall = false
-  $firewall_tool = ''
-  $firewall_src = '0.0.0.0/0'
-  $firewall_dst = $::ipaddress
   $puppi = false
   $puppi_helper = 'standard'
   $debug = false

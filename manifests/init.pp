@@ -317,9 +317,10 @@ class munin (
   $puppi               = params_lookup( 'puppi' , 'global' ),
   $puppi_helper        = params_lookup( 'puppi_helper' , 'global' ),
   $firewall            = params_lookup( 'firewall' , 'global' ),
-  $firewall_tool       = params_lookup( 'firewall_tool' , 'global' ),
-  $firewall_src        = params_lookup( 'firewall_src' , 'global' ),
-  $firewall_dst        = params_lookup( 'firewall_dst' , 'global' ),
+  $firewall_local      = '',
+  $firewall_remote     = '',
+  $firewall_local_v6   = '',
+  $firewall_remote_v6  = '',
   $debug               = params_lookup( 'debug' , 'global' ),
   $audit_only          = params_lookup( 'audit_only' , 'global' ),
   $package             = params_lookup( 'package' ),
@@ -340,7 +341,7 @@ class munin (
   $log_file            = params_lookup( 'log_file' ),
   $port                = params_lookup( 'port' ),
   $protocol            = params_lookup( 'protocol' ),
-  $fqdn                = $::fqdn
+  $fqdn                = $munin::params::fqdn
   ) inherits munin::params {
 
   $bool_server_local=any2bool($server_local)
@@ -524,16 +525,22 @@ class munin (
   }
 
   # Exported Resource for Server automatic configuration
-  @@file { "${munin::include_dir}/${munin::fqdn}.conf":
-    ensure  => $munin::manage_file,
-    path    => "${munin::include_dir}/${munin::fqdn}.conf",
-    mode    => $munin::config_file_mode,
-    owner   => $munin::config_file_owner,
-    group   => $munin::config_file_group,
-    content => template($munin::template_host),
-    tag     => "munin_host_${munin::magic_tag}",
-  }
+#  @@file { "${munin::include_dir}/${munin::fqdn}.conf":
+#    ensure  => $munin::manage_file,
+#    path    => "${munin::include_dir}/${munin::fqdn}.conf",
+#    mode    => $munin::config_file_mode,
+#    owner   => $munin::config_file_owner,
+#    group   => $munin::config_file_group,
+#    content => template($munin::template_host),
+#    tag     => "munin_host_${munin::magic_tag}",
+#  }
 
+  @@munin::host { "${magic_tag}-${fqdn}":
+    fqdn     => $fqdn,
+    address  => $address,
+    port     => $port,
+    tag      => $magic_tag
+  }
 
   ### Include custom class if $my_class is set
   if $munin::my_class {
@@ -575,14 +582,15 @@ class munin (
 
   ### Firewall management, if enabled ( firewall => true )
   if $munin::bool_firewall == true {
-    firewall { "munin_${munin::protocol}_${munin::port}":
-      source      => $munin::firewall_src,
-      destination => $munin::firewall_dst,
+    firewall::rule { "munin_${munin::protocol}_${munin::port}":
+      source         => $munin::firewall_remote,
+      destination    => $munin::firewall_local,
+      source_v6      => $munin::firewall_remote_v6,
+      destination_v6 => $munin::firewall_local_v6,
       protocol    => $munin::protocol,
       port        => $munin::port,
       action      => 'allow',
       direction   => 'input',
-      tool        => $munin::firewall_tool,
       enable      => $munin::manage_firewall,
     }
   }

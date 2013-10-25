@@ -45,8 +45,7 @@ class munin::server inherits munin {
       force => true,
     }
   }
-
-  # Collects all the munin clients configs
-  File <<| tag == "munin_host_${munin::magic_tag}" |>>
+  
+  Munin::Host <<| tag == $munin::magic_tag |>>
 
 }
