@@ -1,7 +1,7 @@
 # File Managed by Puppet
 
 <% if @fqdn -%>
-[<%= @folder_prefix %><%= @fqdn %>]
+[<%= @folder_prefix %> <%= scope.lookupvar('munin::fqdn') %>]
 <% else -%>
 [<%= @folder_prefix %><%= @hostname %>]
 <% end -%>
