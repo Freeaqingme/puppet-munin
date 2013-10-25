@@ -284,7 +284,6 @@ class munin (
   $grouplogic          = params_lookup( 'grouplogic' ),
   $address             = params_lookup( 'address' ),
   $extra_plugins       = params_lookup( 'extra_plugins' ),
-  $graph_strategy      = params_lookup( 'graph_strategy' ),
   $graph_period        = params_lookup( 'graph_period' ),
   $autoconfigure       = params_lookup( 'autoconfigure' ),
   $autoconfigure_template = params_lookup( 'autoconfigure_template' ),
@@ -341,6 +340,8 @@ class munin (
   $log_file            = params_lookup( 'log_file' ),
   $port                = params_lookup( 'port' ),
   $protocol            = params_lookup( 'protocol' ),
+  $graph_strategy      = 'cgi',
+  $html_strategy       = 'cgi',
   $fqdn                = $munin::params::fqdn
   ) inherits munin::params {
 

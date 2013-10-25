@@ -23,7 +23,6 @@ class munin::params {
   $extra_plugins = false
   $autoconfigure = true
   $autoconfigure_template = 'munin/munin-autoconfigure.erb'
-  $graph_strategy = 'cron'
   $graph_period = 'second'
 
   if $::fqdn {

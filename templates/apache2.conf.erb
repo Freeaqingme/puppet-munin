@@ -1,0 +1,78 @@
+# File Managed by Puppet
+
+#
+# Derived from: http://munin.readthedocs.org/en/latest/example/webserver/apache-virtualhost.html
+#
+
+<VirtualHost *:<%= @port %>>
+    ServerAdmin <%= @server_admin_email ||= 'webmaster@localhost' %>
+    DocumentRoot <%= @real_docroot %>
+<% if @server_name_value != false -%>
+    ServerName <%= @server_name_value %>
+<% end -%>
+<% if @serveraliases != "" -%>
+<% if @serveraliases.is_a? Array -%>
+    ServerAlias <%= @serveraliases.flatten.join(" ") %>
+<% else -%>
+    ServerAlias <%= @serveraliases %>
+<% end -%>
+<% end -%>
+<% if @env_variables != "" -%>
+<% if env_variables.is_a? Array -%>
+<% env_variables.each do |envvars| -%>
+    SetEnv <%= envvars %>
+<% end -%>
+<% end -%>
+<% end -%>
+
+    ErrorLog  <%= scope.lookupvar('apache::log_dir') %>/<%= @name %>-error_log
+    CustomLog <%= scope.lookupvar('apache::log_dir') %>/<%= @name %>-access_log common
+
+<% if @directory_options != "" || @directory_allow_override != "None" -%>
+    <Directory <%= @real_directory %>>
+        <% if @directory_options != "" -%>
+        Options <%= @directory_options %>
+        <% end -%>
+        <% if @directory_allow_override != "None" -%>
+        AllowOverride <%= @directory_allow_override %>
+        <% end -%>
+    </Directory>
+<% end -%>
+
+<% if @aliases != "" -%>
+<% if @aliases.is_a? Array -%>
+<% aliases.each do |singlealias| %>
+    Alias <%= singlealias %>
+<% end -%>
+<% else -%>
+    Alias <%= @aliases %>
+<% end -%>
+<% end -%>
+
+    # Rewrites
+    RewriteEngine On
+
+    # Static content in /static
+    RewriteRule ^/favicon.ico /etc/munin/static/favicon.ico [L]
+    RewriteRule ^/static/(.*) /etc/munin/static/$1          [L]
+
+    # HTML
+    RewriteCond %{REQUEST_URI} .html$ [or]
+    RewriteCond %{REQUEST_URI} =/
+    RewriteRule ^/(.*)          /usr/lib/munin/cgi/munin-cgi-html/$1 [L]
+
+    # Images
+    RewriteRule ^/(.*) /usr/lib/munin/cgi/munin-cgi-graph/$1 [L]
+
+    # Ensure we can run (fast)cgi scripts
+    <Directory "/usr/lib/munin/cgi">
+        Options +ExecCGI
+        <IfModule mod_fcgid.c>
+            SetHandler fcgid-script
+        </IfModule>
+        <IfModule !mod_fcgid.c>
+            SetHandler cgi-script
+        </IfModule>
+    </Directory>
+
+</VirtualHost>

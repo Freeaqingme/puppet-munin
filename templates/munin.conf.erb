@@ -10,6 +10,7 @@ includedir <%= scope.lookupvar('munin::include_dir') %>
 
 graph_period <%= scope.lookupvar('munin::graph_period') %>
 graph_strategy <%= scope.lookupvar('munin::graph_strategy') %>
+html_strategy <%= scope.lookupvar('munin::html_strategy') %>
 #munin_cgi_graph_jobs 6
 max_graph_jobs 15
 
