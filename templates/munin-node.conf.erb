@@ -32,7 +32,9 @@ host_name <%= @hostname %>
 # regular expression, since Net::Server does not understand CIDR-style
 # network notation unless the perl module Net::CIDR is installed.  You
 # may repeat the allow line as many times as you'd like
-# allow ^127\.0\.0\.1$
+
+allow ^127\.0\.0\.1$
+allow ^::1$
 
 # We install Net::CIDR perl module with Puppet
 <% scope.lookupvar('munin::array_servers').each do |muninserver| %>cidr_allow <%= muninserver -%>
@@ -44,5 +46,3 @@ host <%= scope.lookupvar('munin::address') || '*' %>
 
 # And which port
 port <%= scope.lookupvar('munin::port') %>
-
-# TODO: 'allow'
