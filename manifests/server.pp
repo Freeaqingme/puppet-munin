@@ -45,7 +45,7 @@ class munin::server inherits munin {
       force => true,
     }
   }
-  
+
   Munin::Host <<| tag == $munin::magic_tag |>>
 
 }

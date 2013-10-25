@@ -379,7 +379,7 @@ class munin (
   if (get_magicvar($munin::grouplogic)) {
     $magic_tag = get_magicvar($munin::grouplogic)
   } else {
-    $magic_tag = ''
+    $magic_tag = 'default'
   }
 
   $manage_package = $munin::bool_absent ? {
