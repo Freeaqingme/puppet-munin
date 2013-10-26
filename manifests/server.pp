@@ -29,6 +29,8 @@ class munin::server inherits munin {
 
   file { 'munin.include_dir_server':
     recurse => true,
+    force   => true,
+    purge   => true,
     ensure  => directory,
     path    => $munin::include_dir,
     mode    => '0755',
