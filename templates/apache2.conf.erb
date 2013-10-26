@@ -1,7 +1,7 @@
 # File Managed by Puppet
 
 #
-# Derived from: http://munin.readthedocs.org/en/latest/example/webserver/apache-virtualhost.html
+# Derived from: http://munin-monitoring.org/wiki/CgiHowto2
 #
 # Usage:
 #  apache::vhost { 'munin':
@@ -61,30 +61,51 @@
 <% end -%>
 <% end -%>
 
-    # Rewrites
-    RewriteEngine On
 
-    # Static content in /static
-    RewriteRule ^/favicon.ico /etc/munin/static/favicon.ico [L]
-    RewriteRule ^/static/(.*) /etc/munin/static/$1          [L]
-
-    # HTML
-    RewriteCond %{REQUEST_URI} .html$ [or]
-    RewriteCond %{REQUEST_URI} =/
-    RewriteRule ^/(.*)          /usr/lib/munin/cgi/munin-cgi-html/$1 [L]
-
-    # Images
-    RewriteRule ^/(.*) /usr/lib/munin/cgi/munin-cgi-graph/$1 [L]
+    # required because we serve out of the cgi directory and URLs are relative
+    Alias /munin-cgi/munin-cgi-html/static /var/cache/munin/www/static
+    RedirectMatch ^/$ /munin-cgi/munin-cgi-html/
 
     # Ensure we can run (fast)cgi scripts
-    <Directory "/usr/lib/munin/cgi">
+    ScriptAlias /munin-cgi/munin-cgi-graph /usr/lib/munin/cgi/munin-cgi-graph
+    <Location /munin-cgi/munin-cgi-graph>
         Options +ExecCGI
         <IfModule mod_fcgid.c>
             SetHandler fcgid-script
         </IfModule>
-        <IfModule !mod_fcgid.c>
-            SetHandler cgi-script
+        <IfModule mod_fastcgi.c>
+            SetHandler fastcgi-script
         </IfModule>
-    </Directory>
+        <IfModule !mod_fastcgi.c>
+            <IfModule !mod_fcgid.c>
+                SetHandler cgi-script
+            </IfModule>
+        </IfModule>
+        Allow from all
+    </Location>
+
+    ScriptAlias /munin-cgi/munin-cgi-html /usr/lib/munin/cgi/munin-cgi-html
+    <Location /munin-cgi/munin-cgi-html>
+        Options +ExecCGI
+        <IfModule mod_fcgid.c>
+            SetHandler fcgid-script
+        </IfModule>
+        <IfModule mod_fastcgi.c>
+            SetHandler fastcgi-script
+        </IfModule>
+        <IfModule !mod_fastcgi.c>
+            <IfModule !mod_fcgid.c>
+                SetHandler cgi-script
+            </IfModule>
+        </IfModule>
+        Allow from all
+    </Location>
+
+    <Location /munin-cgi/munin-cgi-html/static>
+            # this needs to be at the end to override the above sethandler directives
+            Options -ExecCGI
+            SetHandler None
+    </Location>
+
 
 </VirtualHost>
