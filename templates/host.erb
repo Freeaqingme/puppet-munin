@@ -1,6 +1,6 @@
 # File Managed by Puppet
 
 [<%= scope.lookupvar('munin::folder_prefix') %><%= @fqdn %>]
-    address <%= @address %>
+    address <%= @fqdn %>
     port <%= @port %>
     use_node_name yes
