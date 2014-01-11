@@ -549,6 +549,7 @@ class munin (
     fqdn     => $fqdn,
     address  => $address,
     port     => $port,
+    content  => template($::munin::template_host),
     tag      => $magic_tag
   }
 
