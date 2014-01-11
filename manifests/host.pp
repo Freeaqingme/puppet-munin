@@ -2,7 +2,8 @@
 define munin::host (
   $fqdn,
   $address,
-  $port
+  $port,
+  $content = template($munin::template_host)
 ) {
 
   file { "${munin::include_dir}/${fqdn}.conf":
@@ -11,7 +12,7 @@ define munin::host (
     mode    => $munin::config_file_mode,
     owner   => $munin::config_file_owner,
     group   => $munin::config_file_group,
-    content => template($munin::template_host),
+    content => $content,
   }
 
   # Todo: add fw rule
