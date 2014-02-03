@@ -471,10 +471,10 @@ class munin (
   if $munin::bool_autoconfigure == true {
     file { 'munin-autoconfigure':
       ensure  => $munin::manage_file,
-      path    => '/etc/cron.daily/munin-autoconfigure',
+      path    => $munin::autoconfigure_cron_file,
       mode    => '0755',
-      owner   => 'root',
-      group   => 'root',
+      owner   => $munin::config_file_owner,
+      group   => $munin::config_file_group,
       require => Package['munin-node'],
       content => template($munin::autoconfigure_template),
       replace => $munin::manage_file_replace,

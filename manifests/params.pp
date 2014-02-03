@@ -23,6 +23,11 @@ class munin::params {
   $extra_plugins = false
   $autoconfigure = true
   $autoconfigure_template = 'munin/munin-autoconfigure.erb'
+  $autoconfigure_cron_file = $::operatingsystem ? {
+    'FreeBSD' => '/usr/local/etc/periodic/daily/munin-autoconfigure',
+    default   => '/etc/cron.daily/munin-autoconfigure',
+  }
+
   $graph_period = 'second'
 
   if $::fqdn {
@@ -36,6 +41,7 @@ class munin::params {
       4        => 'perl-Net-CIDR-Lite',
       default  => 'perl-Net-CIDR',
     },
+    'FreeBSD' => 'p5-Net-CIDR',
     default => 'libnet-cidr-perl',
   }
 
@@ -56,10 +62,12 @@ class munin::params {
 
   $web_dir = $::operatingsystem ? {
     /(?i:Ubuntu|Debian|Mint)/ => '/var/cache/munin/www',
+    'FreeBSD'                 => '/usr/local/www/munin',
     default                   => '/var/www/html/munin',
   }
 
   $plugins_dir = $::operatingsystem ? {
+    'FreeBSD' => '/usr/local/share/munin/plugins',
     default => '/usr/share/munin/plugins',
   }
 
@@ -103,10 +111,12 @@ class munin::params {
   }
 
   $config_dir = $::operatingsystem ? {
+    'FreeBSD' => '/usr/local/etc/munin',
     default => '/etc/munin',
   }
 
   $config_file = $::operatingsystem ? {
+    'FreeBSD' => '/usr/local/etc/munin/munin-node.conf',
     default => '/etc/munin/munin-node.conf',
   }
 
@@ -119,6 +129,7 @@ class munin::params {
   }
 
   $config_file_group = $::operatingsystem ? {
+    'FreeBSD' => 'wheel',
     default => 'root',
   }
 
@@ -132,6 +143,7 @@ class munin::params {
   }
 
   $data_dir = $::operatingsystem ? {
+    'FreeBSD' => '/usr/local/etc/munin',
     default => '/etc/munin',
   }
 
