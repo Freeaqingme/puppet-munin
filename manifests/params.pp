@@ -107,7 +107,12 @@ class munin::params {
   }
 
   $process_user = $::operatingsystem ? {
-    default => 'munin',
+    default => 'root',
+  }
+
+  $process_group = $::operatingsystem ? {
+    'FreeBSD' => 'wheel',
+    default => 'root',
   }
 
   $config_dir = $::operatingsystem ? {
@@ -160,6 +165,7 @@ class munin::params {
   # }
   $log_file = $::operatingsystem ? {
     /(?i:RedHat|Centos|Scientific|Fedora|Amazon|Linux)/ => '/var/log/munin-node/munin-node.log',
+    /(?i:FreeBSD)/                                      => '/var/log/munin/munin-node.log',
     default                                             => '/var/log/munin/munin.log',
   }
 
