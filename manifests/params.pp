@@ -22,7 +22,10 @@ class munin::params {
   $grouplogic = ''
   $extra_plugins = false
   $autoconfigure = true
-  $autoconfigure_template = 'munin/munin-autoconfigure.erb'
+  $autoconfigure_template = $::operatingsystem ? {
+    'FreeBSD' => 'munin/munin-autoconfigure-freebsd.erb',
+    default   => 'munin/munin-autoconfigure.erb',
+  }
   $autoconfigure_cron_file = $::operatingsystem ? {
     'FreeBSD' => '/usr/local/etc/periodic/daily/munin-autoconfigure',
     default   => '/etc/cron.daily/munin-autoconfigure',
