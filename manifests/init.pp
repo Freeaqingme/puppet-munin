@@ -391,7 +391,7 @@ class munin (
     true  => 'absent',
     false => $munin::version,
   }
-  
+
   $manage_package_cidr_perl = $munin::bool_absent ? {
     true  => 'absent',
     false => 'installed',
@@ -473,16 +473,31 @@ class munin (
   }
 
   if $munin::bool_autoconfigure == true {
-    file { 'munin-autoconfigure':
-      ensure  => $munin::manage_file,
-      path    => $munin::autoconfigure_cron_file,
-      mode    => '0755',
-      owner   => $munin::config_file_owner,
-      group   => $munin::config_file_group,
-      require => Package['munin-node'],
-      content => template($munin::autoconfigure_template),
-      replace => $munin::manage_file_replace,
-      audit   => $munin::manage_audit,
+    # Solaris doens't have a periodic task system
+    # so we have to manage the cron ourselves
+    if $::operatingsystem =~ /(?i:Solaris)/ {
+      cron { 'munin-autoconfigure':
+        ensure   => $munin::manage_file,
+        user     => $munin::config_file_owner,
+        command  => "/bin/rm -f ${::munin::conf_dir_active_plugins}* ; /opt/csw/sbin/munin-node-configure --shell 2> /dev/null | /bin/sh ; /usr/sbin/svcadm ${::munin::restart_or_reload} ${::munin::service} >/dev/null 2>&1",
+        minute   => 0,
+        hour     => 0,
+        weekday  => '*',
+        month    => '*',
+        monthday => '*',
+      }
+    } else {
+      file { 'munin-autoconfigure':
+        ensure  => $munin::manage_file,
+        path    => $munin::autoconfigure_cron_file,
+        mode    => '0755',
+        owner   => $munin::config_file_owner,
+        group   => $munin::config_file_group,
+        require => Package['munin-node'],
+        content => template($munin::autoconfigure_template),
+        replace => $munin::manage_file_replace,
+        audit   => $munin::manage_audit,
+      }
     }
   }
 
