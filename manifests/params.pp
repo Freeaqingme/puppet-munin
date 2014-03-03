@@ -44,24 +44,37 @@ class munin::params {
       4        => 'perl-Net-CIDR-Lite',
       default  => 'perl-Net-CIDR',
     },
-    'FreeBSD' => 'p5-Net-CIDR',
-    default => 'libnet-cidr-perl',
+    /(?i:Solaris)/ => 'CSWpm-net-cidr',
+    'FreeBSD'      => 'p5-Net-CIDR',
+    default        => 'libnet-cidr-perl',
   }
 
   $package_server = $::operatingsystem ? {
-    default => 'munin',
+    /(?i:Solaris)/ => 'CSWmunin-master',
+    default        => 'munin',
   }
 
   $config_file_server = '/etc/munin/munin.conf'
   $template_server = 'munin/munin.conf.erb'
   $template_host = 'munin/host.erb'
 
-  $include_dir = '/etc/munin/munin-conf.d'
+  $include_dir = $::operatingsystem ? {
+    /(?i:Solaris)/ => '/etc/opt/csw/munin/munin-conf.d',
+    default        => '/etc/munin/munin-conf.d',
+  }
   $include_dir_purge = false
 
-  $conf_dir_plugins = '/etc/munin/plugin-conf.d'
+  $conf_dir_plugins = $::operatingsystem ? {
+    /(?i:Solaris)/ => '/etc/opt/csw/munin/plugin-conf.d',
+    /(?i:FreeBSD)/ => '/usr/local/etc/munin/plugin-conf.d',
+    default        => '/etc/munin/plugin-conf.d',
+  }
 
-  $conf_dir_active_plugins = '/etc/munin/plugins/'
+  $conf_dir_active_plugins = $::operatingsystem ? {
+    /(?i:Solaris)/  => '/etc/opt/csw/munin/plugins/',
+    /(?i:FreeBSD)/  => '/usr/local/etc/munin/plugins/',
+    default         => '/etc/munin/plugins/',
+  }
 
   $web_dir = $::operatingsystem ? {
     /(?i:Ubuntu|Debian|Mint)/ => '/var/cache/munin/www',
@@ -70,8 +83,9 @@ class munin::params {
   }
 
   $plugins_dir = $::operatingsystem ? {
-    'FreeBSD' => '/usr/local/share/munin/plugins',
-    default => '/usr/share/munin/plugins',
+    /(?i:Solaris)/ => '/opt/csw/libexec/munin/plugins',
+    /(?i:FreeBSD)/ => '/usr/local/share/munin/plugins',
+    default        => '/usr/share/munin/plugins',
   }
 
   $restart_or_reload = $::operatingsystem ? {
@@ -82,11 +96,13 @@ class munin::params {
   ### Application related parameters
 
   $package = $::operatingsystem ? {
-    default => 'munin-node',
+    /(?i:Solaris)/ => 'CSWmunin-node',
+    default        => 'munin-node',
   }
 
   $service = $::operatingsystem ? {
-    default => 'munin-node',
+    /(?i:Solaris)/ => 'application/cswmuninnode',
+    default        => 'munin-node',
   }
 
   $service_status = $::operatingsystem ? {
@@ -94,7 +110,8 @@ class munin::params {
   }
 
   $process = $::operatingsystem ? {
-    /(?i:Ubuntu)/ => $::operatingsystemrelease ? {
+    /(?i:FreeBSD)/ => 'perl',
+    /(?i:Ubuntu)/  => $::operatingsystemrelease ? {
       '12.04'  => 'munin',
       default => 'munin-node',
     },
@@ -102,7 +119,8 @@ class munin::params {
   }
 
   $process_args = $::operatingsystem ? {
-    /(?i:Ubuntu)/ => $::operatingsystemrelease ? {
+    /(?i:FreeBSD)/ => 'munin-node',
+    /(?i:Ubuntu)/  => $::operatingsystemrelease ? {
       '12.04'  => 'munin-node',
       default => '',
     },
@@ -119,13 +137,15 @@ class munin::params {
   }
 
   $config_dir = $::operatingsystem ? {
-    'FreeBSD' => '/usr/local/etc/munin',
-    default => '/etc/munin',
+    /(?i:Solaris)/ => '/etc/opt/csw/munin',
+    /(?i:FreeBSD)/  => '/usr/local/etc/munin',
+    default        => '/etc/munin',
   }
 
   $config_file = $::operatingsystem ? {
-    'FreeBSD' => '/usr/local/etc/munin/munin-node.conf',
-    default => '/etc/munin/munin-node.conf',
+    /(?i:Solaris)/ => '/etc/opt/csw/munin/munin-node.conf',
+    /(?i:FreeBSD)/ => '/usr/local/etc/munin/munin-node.conf',
+    default        => '/etc/munin/munin-node.conf',
   }
 
   $config_file_mode = $::operatingsystem ? {
@@ -147,7 +167,8 @@ class munin::params {
   }
 
   $pid_file = $::operatingsystem ? {
-    default => '/var/run/munin/munin-node.pid',
+    /(?i:Solaris)/ => '/var/opt/csw/munin/log/munin-node.pid',
+    default        => '/var/run/munin/munin-node.pid',
   }
 
   $data_dir = $::operatingsystem ? {
@@ -156,7 +177,8 @@ class munin::params {
   }
 
   $log_dir = $::operatingsystem ? {
-    default => '/var/log/munin',
+    /(?i:Solaris)/ => '/var/opt/csw/munin/log/',
+    default        => '/var/log/munin',
   }
 
   # Munin EPEL package has changed the path of munin-node log
@@ -168,6 +190,7 @@ class munin::params {
   # }
   $log_file = $::operatingsystem ? {
     /(?i:RedHat|Centos|Scientific|Fedora|Amazon|Linux)/ => '/var/log/munin-node/munin-node.log',
+    /(?i:Solaris)/                                      => '/var/opt/csw/munin/log/munin-node.log',
     /(?i:FreeBSD)/                                      => '/var/log/munin/munin-node.log',
     default                                             => '/var/log/munin/munin.log',
   }
