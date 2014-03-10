@@ -321,8 +321,6 @@ class munin (
   $firewall            = params_lookup( 'firewall' , 'global' ),
   $firewall_local      = '',
   $firewall_remote     = '',
-  $firewall_local_v6   = '',
-  $firewall_remote_v6  = '',
   $debug               = params_lookup( 'debug' , 'global' ),
   $audit_only          = params_lookup( 'audit_only' , 'global' ),
   $package             = params_lookup( 'package' ),
@@ -615,8 +613,6 @@ class munin (
     firewall::rule { "munin_${munin::protocol}_${munin::port}":
       source         => $munin::firewall_remote,
       destination    => $munin::firewall_local,
-      source_v6      => $munin::firewall_remote_v6,
-      destination_v6 => $munin::firewall_local_v6,
       protocol    => $munin::protocol,
       port        => $munin::port,
       action      => 'allow',
