@@ -1,0 +1,61 @@
+#!/bin/sh
+# -*- sh -*-
+# vim: ft=sh
+
+: << =cut
+
+=head1 NAME
+
+ksm - Plugin to monitor Kernel Samepage Merging
+
+=head1 CONFIGURATION
+
+No configuration
+
+=head1 AUTHOR
+
+Reinier Schoof
+
+=head1 LICENSE
+
+GNU GPL
+
+=head1 MAGIC MARKERS
+
+ #%# family=auto
+ #%# capabilities=autoconf
+
+=cut
+
+if [ "$1" = "autoconf" ]; then
+    if [ -f /sys/kernel/mm/ksm/run ] && [ "$(cat /sys/kernel/mm/ksm/run)" = "1" ]
+    then
+        echo "yes"
+    else
+        echo "no (/sys/kernel/mm/ksm/run must be present and value must be 1)"
+    fi
+    exit 0
+fi
+
+items="pages_shared pages_sharing pages_unshared pages_volatile"
+if [ "$1" = "config" ]; then
+    echo "graph_args --base 1000 -l 0"
+    echo "graph_vlabel pages"
+    echo "graph_title Kernel Samepage Merging"
+    echo "graph_category system"
+    echo "graph_info This graph shows the results of KSM"
+
+    echo "graph_order ${items}"
+
+    for item in ${items}
+    do
+        echo "${item}.label ${item}"
+        echo "${item}.draw AREASTACK"
+    done
+    exit 0
+fi
+
+for item in ${items}
+do
+    echo "${item}.value $(cat /sys/kernel/mm/ksm/${item})"
+done
